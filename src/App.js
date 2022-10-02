@@ -22,7 +22,7 @@ function App() {
     }
   )
 
-  useEffect(() => {
+  // useEffect(() => {
     
     socket.on('connection-success', success => {
     console.log(success)
@@ -30,27 +30,42 @@ function App() {
 
     socket.on('offerOrAnswer', (sdp) => {
       textref.value = JSON.stringify(sdp)
-      pc.setRemoteDescription(new RTCSessionDescription(sdp))
+      console.log(sdp)
+      // pc.setRemoteDescription(new RTCSessionDescription(sdp))
+      // setRemoteDescription()
     })
 
     socket.on('candidate', (candidate) => {
-      /* candidates = [...candidates, candidate] */
-      pc.addIceCandidate(new RTCIceCandidate(candidate))
+      candidates = [...candidates, candidate]
+      // pc.addIceCandidate(new RTCIceCandidate(candidate))
+      // addCandidate();
     })
 
-  }, [])
+  // }, [])
 
-  /* const pc_config = null */
+  // const pc_config = null
   
   const pc_config = {
     "iceServers": [
-      /* { */
-        /* urls: 'stun:[STUN-IP]:[PORT]', */
-        /* 'credential': '[YOUR CREDENTIAL]', */
-        /* 'username': '[USERNAME]' */
-      /* } */
+      // {
+      //   urls: 'stun:[STUN-IP]:[PORT]',
+      //   'credential': '[YOUR CREDENTIAL]',
+      //   'username': '[USERNAME]'
+      // }
+      // {
+      //   urls: 'stun:stun.l.google.com:19302'
+      // },
+      // {
+      //   url: 'turn:192.158.29.39:3478?transport=tcp',
+      //   credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+      //   username: '28224511:1379330808'
+      // },
       {
-        urls: 'stun:stun.l.google.com:19302'
+        urls: 'stun:sp-turn2.xirsys.com'
+      }, {
+        url: "turn:sp-turn2.xirsys.com:3478?transport=tcp",
+        username: "eOJgQ7KrOLjlF2RyaI3DdNk2wcG0YEmZlbzF-uwgCAPWVgZ1wSzLfCcva-sfn9XNAAAAAGM5CuZnZW50aTkx",
+        credential: "952f2026-4205-11ed-b4a6-0242ac120004",
       }
     ]
   }
@@ -60,12 +75,13 @@ function App() {
     if (cam) {
       window.localCam = cam
       localCam.current.srcObject = cam
+      pc.addStream(cam)
     }
     if (screen) {
       window.localScreen = screen
       localScreen.current.srcObject = screen
-      console.log(screen)
-      pc.addStream(screen)
+      // console.log(screen)
+      
 
     }
   }
@@ -85,7 +101,7 @@ function App() {
     remoteScreen.current.srcObject = e.stream
   }
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((e) => success(e,false))
     .catch(console.error)
 
@@ -98,16 +114,16 @@ function App() {
     console.log('Offer');
     pc.createOffer({offerToReceiveVideo: 1})
     .then(sdp => {
-      /* console.log(JSON.stringify(sdp)) */
+      // console.log(JSON.stringify(sdp))
       pc.setLocalDescription(sdp)
       sendToPeer('offerOrAnswer', sdp)
     }, e => {})
   }
 
   function addCandidate() {
-    /* const candidate = JSON.parse(textref.value) */
-    /* console.log('Adding candidate:', candidate) */
-    /* pc.addIceCandidate(new RTCIceCandidate(candidate)) */
+    // const candidate = JSON.parse(textref.value)
+    // console.log('Adding candidate:', candidate)
+    // pc.addIceCandidate(new RTCIceCandidate(candidate))
     candidates.forEach(candidate => {
       console.log(JSON.stringify(candidate))
       pc.addIceCandidate(new RTCIceCandidate(candidate))
@@ -123,7 +139,7 @@ function App() {
     console.log('Answer')
     pc.createAnswer({offerToReceiveVideo: 1})
     .then(sdp => {
-      /* console.log(JSON.stringify(sdp)) */
+      // console.log(JSON.stringify(sdp))
       pc.setLocalDescription(sdp)
       sendToPeer('offerOrAnswer', sdp)
     }, e => {})
@@ -142,9 +158,9 @@ function App() {
       <div style={{display: "flex"}}>
         <div>
           <div>Screen:</div>
-          <video ref={localScreen} autoPlay></video>
+          <video ref={localScreen} autoPlay muted></video>
           <div>Cam:</div>
-          <video ref={localCam} autoPlay></video>
+          <video ref={localCam} autoPlay muted></video>
         </div>
 
         <div>
@@ -160,8 +176,8 @@ function App() {
       <br/>
       <textarea ref={ref => {textref = ref}}/>
       <br/>
-      {/*<button onClick={setRemoteDescription}>Set Remote Desc</button>
-      <button onClick={addCandidate}>Add Candidate</button>*/}
+      <button onClick={setRemoteDescription}>Set Remote Desc</button>
+      <button onClick={addCandidate}>Add Candidate</button>
 
     </div>
   );
