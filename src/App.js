@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './App.css';
-
 import io from 'socket.io-client'
+import Video from './Components/Video.js';
 
 function App() {
   
-  var localScreen = useRef({});
-  var localCam = useRef({});
+  var [localScreen, setLocalScreen] = useState(null)
+  var [localCam, setLocalCam] = useState(null)
+  // var localScreen = useRef({});
+  // var localCam = useRef({});
   var remoteScreen = useRef({});
   var remoteCam = useRef({});
   var textref = useRef({});
@@ -31,13 +33,13 @@ function App() {
     socket.on('offerOrAnswer', (sdp) => {
       textref.value = JSON.stringify(sdp)
       console.log(sdp)
-      // pc.setRemoteDescription(new RTCSessionDescription(sdp))
+      pc.setRemoteDescription(new RTCSessionDescription(sdp))
       // setRemoteDescription()
     })
 
     socket.on('candidate', (candidate) => {
       candidates = [...candidates, candidate]
-      // pc.addIceCandidate(new RTCIceCandidate(candidate))
+      pc.addIceCandidate(new RTCIceCandidate(candidate))
       // addCandidate();
     })
 
@@ -73,16 +75,15 @@ function App() {
 
   function success(cam, screen) {
     if (cam) {
-      window.localCam = cam
-      localCam.current.srcObject = cam
+      // window.localCam = cam
+      // localCam.current.srcObject = cam
+      setLocalCam(cam)
       pc.addStream(cam)
     }
     if (screen) {
-      window.localScreen = screen
-      localScreen.current.srcObject = screen
-      // console.log(screen)
-      
-
+      // window.localScreen = screen
+      // localScreen.current.srcObject = screen
+      setLocalScreen(screen);
     }
   }
 
@@ -103,11 +104,11 @@ function App() {
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     .then((e) => success(e,false))
-    .catch(console.error)
+    .catch((err) => console.log('getUserMedia error: ', err))
 
     navigator.mediaDevices.getDisplayMedia()
     .then((e) => success(false,e))
-    .catch(console.error)
+    .catch((err) => console.log('getDisplayMedia error: ', err))
   }, [])
   
   function createOffer() {
@@ -158,17 +159,16 @@ function App() {
       <div style={{display: "flex"}}>
         <div>
           <div>Screen:</div>
-          <video ref={localScreen} autoPlay muted></video>
+          <Video videoStream={localScreen} muted></Video>
           <div>Cam:</div>
-          <video ref={localCam} autoPlay muted></video>
+          <Video videoStream={localCam} muted></Video>
         </div>
-
-        <div>
-          <div>Screen:</div>
-          <video ref={remoteScreen} autoPlay></video>
-          <div>Cam:</div>
-          <video ref={remoteCam} autoPlay></video>
-        </div>
+        {/* <div> */}
+        {/*   <div>Screen:</div> */}
+        {/*   <Video ref={remoteScreen}></Video> */}
+        {/*   <div>Cam:</div> */}
+        {/*   <Video ref={remoteCam}></Video> */}
+        {/* </div> */}
       </div>
 
       <button onClick={createOffer}>Offer</button>
@@ -176,8 +176,8 @@ function App() {
       <br/>
       <textarea ref={ref => {textref = ref}}/>
       <br/>
-      <button onClick={setRemoteDescription}>Set Remote Desc</button>
-      <button onClick={addCandidate}>Add Candidate</button>
+      {/* <button onClick={setRemoteDescription}>Set Remote Desc</button> */}
+      {/* <button onClick={addCandidate}>Add Candidate</button> */}
 
     </div>
   );
