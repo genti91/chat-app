@@ -24,29 +24,84 @@ const peers = io.of('/webrtcPeer')
 let connectedPeers = new Map()
 
 peers.on('connection', socket => {
-  console.log(socket.id)
-  socket.emit('connection-success', { success: socket.id })
+  
   connectedPeers.set(socket.id, socket)
+
+
+  console.log(socket.id)
+  
+  socket.emit('connection-success', {
+    success: socket.id,
+    peerCount: connectedPeers.size,
+  })
+
+  const broadcast = () => socket.broadcast.emit('joined-peers', {
+    peerCount: connectedPeers.size,
+  })
+
+
+  const disconnectPeer = (socketId) => socket.broadcast.emit('peer-disconnected', {
+    peerCount: connectedPeers.size,
+    socketId: socketId
+  })
 
   socket.on('disconnect', () => {
     console.log('disconnected')
     connectedPeers.delete(socket.id)
+    disconnectPeer(socket.id)
   })
 
-  socket.on('offerOrAnswer', (data) => {
-    for (const [socketId, socket] of connectedPeers.entries()) {
-      if (socketId !== data.socketId) {
-        console.log(socketId, data.payload.type)
-        socket.emit('offerOrAnswer', data.payload)
+  socket.on('onlinePeers', (data) => {
+    console.log('onlinePeers data: ',data)
+    for (const [socketId, _socket] of connectedPeers.entries()) {
+      if (data.socketId && socketId !== data.socketId.local){
+        console.log('online-peer', data.socketId, socketId)
+        socket.emit('online-peer', socketId)
       }
     }
   })
 
+  socket.on('offer', (data) => {
+    for (const [socketId, socket] of connectedPeers.entries()) {
+      if (socketId !== data.socketId.remote) {
+        console.log(socketId, data.payload.type)
+        socket.emit('offer', {
+          sdp: data.payload,
+          socketId: data.socketId.local
+        })
+      }
+    }
+  })
+
+  socket.on('answer', (data) => {
+    for (const [socketId, socket] of connectedPeers.entries()) {
+      if (socketId !== data.socketId.remote) {
+        socket.emit('answer', {
+          sdp: data.payload,
+          socketId: data.socketId.local
+        })
+      }
+    }
+  })
+
+
+  // socket.on('offerOrAnswer', (data) => {
+  //   for (const [socketId, socket] of connectedPeers.entries()) {
+  //     if (socketId !== data.socketId) {
+  //       console.log(socketId, data.payload.type)
+  //       socket.emit('offerOrAnswer', data.payload)
+  //     }
+  //   }
+  // })
+
   socket.on('candidate', (data) => {
     for (const [socketId, socket] of connectedPeers.entries()) {
-      if (socketId !== data.socketId) {
+      if (socketId === data.socketId.remote) {
         console.log(socketId, data.payload)
-        socket.emit('candidate', data.payload)
+        socket.emit('candidate', {
+          candidate: data.payload,
+          socketId: data.socketId.local
+        })
       }
     }
   })
