@@ -2,7 +2,7 @@ const express = require('express')
 
 var io = require('socket.io')
 ({
-  path: '/webrtc'
+  path: '/io/webrtc'
 })
 
 const app = express ()
@@ -38,7 +38,7 @@ peers.on('connection', socket => {
   const broadcast = () => socket.broadcast.emit('joined-peers', {
     peerCount: connectedPeers.size,
   })
-
+  broadcast()
 
   const disconnectPeer = (socketId) => socket.broadcast.emit('peer-disconnected', {
     peerCount: connectedPeers.size,

@@ -39,18 +39,20 @@ function App() {
   var socket = null
   // var candidates = []
  
-  socket = io(
-    serviceIP,
-    {
-      path: '/webrtc',
-      query: {}
-    }
-  )
+  
 
   useEffect(() => {
-    
+
+    socket = io.connect(
+      serviceIP, {
+        path: '/io/webrtc',
+        query: {}
+      }
+    ) 
+
     socket.on('connection-success', data => {
       getLocalStream();
+      console.log('success')
       console.log(data.success)
       const newStatus = data.peerCount > 1 ? `Total Connected Peers: ${data.peerCount}` : `Waiting for other peers to connect`
       setStatus(newStatus)
@@ -100,7 +102,10 @@ function App() {
 
     socket.on('offer', data => {
       createPeerConnection(data.socketID, pc => {
-        pc.addStream(localCam)
+        console.log('localCam: ', localCam)
+        if(localCam){
+          pc.addStream(localCam)
+        }
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
         .then((sdp) => {
           pc.createAnswer(sdpConstraints)
@@ -116,13 +121,7 @@ function App() {
       const pc = peerConnections[data.socketID]
       pc.addStream(localCam)
       pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-      .then((sdp) => {
-        pc.createAnswer(sdpConstraints)
-        sendToPeer('answer', sdp, {
-          local: socket.id,
-          remote: data.socketID,
-        })
-      })
+      .then(() => {})
     })
 
   }, [])
@@ -131,13 +130,13 @@ function App() {
 
     function success(cam, screen) {
       if (cam) {
-        // window.localCam = cam
+        window.localCam = cam
         // localCam.current.srcObject = cam
         setLocalCam(cam)
         // pc.addStream(cam)
       }
       if (screen) {
-        // window.localScreen = screen
+        window.localScreen = screen
         // localScreen.current.srcObject = screen
         setLocalScreen(screen);
       }
@@ -157,18 +156,21 @@ function App() {
     sendToPeer('onlinePeers', null, {local: socket.id})
   }
   
-  function sendToPeer(messageType, payload, socketID){
+  function sendToPeer(messageType, payload, socketId){
+    console.log('sendToPeer: ',messageType, socketId)
     socket.emit(messageType, {
-      socketID,
+      socketId,
       payload
     })
   }
 
-  function createPeerConnection(socketID) {
+  function createPeerConnection(socketID, callback) {
     try {
       let pc = new RTCPeerConnection(pc_config)
       setPeerConnections({...peerConnections, [socketID]: pc})
       
+      console.log('peerConnections: ', peerConnections) 
+
       pc.onicecandidate = (e) => {
         if(e.candidate){
           sendToPeer('candidate', e.candidate, {
@@ -185,11 +187,13 @@ function App() {
         // }
       }
       pc.ontrack = (e) => {
+        console.log('ontrack')
         const remoteVideo = {
           id: socketID,
           name: socketID,
           stream: e.streams[0]
         }
+        console.log('ontrack video: ',remoteVideo)
         setRemoteStreams([...remoteStreams, remoteVideo])
       }
       pc.close = () => {
@@ -198,7 +202,8 @@ function App() {
       if(localCam){
         pc.addStream(localCam)
       }
-    }catch(err){console.log('error creating connection: ', err);return}
+      callback(pc)
+    }catch(err){console.log('error creating connection: ', err);callback(null)}
   }
   console.log('remoteStreams: ', remoteStreams)
   return (
