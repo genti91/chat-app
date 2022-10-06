@@ -12,7 +12,7 @@ function Video({videoStream, id, muted}) {
 
   return(
     <div>
-      <video ref={video} autoPlay></video>
+      <video ref={video} autoPlay muted={muted}></video>
     </div>
   )
 }

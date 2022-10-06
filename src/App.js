@@ -29,7 +29,7 @@ function App() {
       }
     }
   )
-  var [serviceIP, setServiceIP] = useState('https://4502-181-16-122-114.sa.ngrok.io/webrtcPeer')
+  var [serviceIP, setServiceIP] = useState('https://fb2d-181-16-122-66.sa.ngrok.io/webrtcPeer')
   // var localScreen = useRef({});
   // var localCam = useRef({});
   // var remoteScreen = useRef({});
@@ -54,6 +54,7 @@ function App() {
       getLocalStream();
       console.log('success')
       console.log(data.success)
+      console.log('peer count: ',data.peerCount)
       const newStatus = data.peerCount > 1 ? `Total Connected Peers: ${data.peerCount}` : `Waiting for other peers to connect`
       setStatus(newStatus)
     })
@@ -214,7 +215,7 @@ function App() {
           {/* <div>Screen:</div> */}
           {/* <Video videoStream={localScreen} muted></Video> */}
           <div>Cam:</div>
-          <Video videoStream={localCam} muted></Video>
+          <Video videoStream={localCam} muted={true}></Video>
         </div>
         <div>
         {/*   <div>Screen:</div> */}
