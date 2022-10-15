@@ -226,14 +226,6 @@ function App() {
         </div>
       </div>
 
-      {/* <button onClick={createOffer}>Offer</button> */}
-      {/* <button onClick={createAnswer}>Answer</button> */}
-      {/* <br/> */}
-      {/* <textarea ref={ref => {textref = ref}}/> */}
-      {/* <br/> */}
-      {/* <button onClick={setRemoteDescription}>Set Remote Desc</button> */}
-      {/* <button onClick={addCandidate}>Add Candidate</button> */}
-
     </div>
   );
 }
