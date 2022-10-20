@@ -34,7 +34,6 @@ function App() {
   // var localCam = useRef({});
   // var remoteScreen = useRef({});
   // var remoteCam = useRef({});
-  // var textref = useRef({});
   
   var socket = null
   // var candidates = []
