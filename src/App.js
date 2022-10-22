@@ -30,10 +30,7 @@ function App() {
     }
   )
   var [serviceIP, setServiceIP] = useState('https://fb2d-181-16-122-66.sa.ngrok.io/webrtcPeer')
-  // var localScreen = useRef({});
-  // var localCam = useRef({});
-  // var remoteScreen = useRef({});
-  // var remoteCam = useRef({});
+  
   
   var socket = null
   // var candidates = []
