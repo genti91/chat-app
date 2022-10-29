@@ -1,10 +1,11 @@
 import React from "react";
 import { v1 as uuid } from "uuid";
 
-const CreateRoom = (props) => {
+const CreateRoom = ({setRender}) => {
     function create() {
-        const id = uuid();
-        props.history.push(`/room/${id}`);
+        setRender({create: false})
+        // const id = uuid();
+        // props.history.push(`/room/${id}`);
     }
 
     return (

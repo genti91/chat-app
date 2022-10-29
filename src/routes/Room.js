@@ -37,15 +37,15 @@ const videoConstraints = {
     width: window.innerWidth / 2
 };
 
-const Room = (props) => {
+const Room = ({roomID}) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
-    const roomID = props.match.params.roomID;
+    // const roomID = props.match.params.roomID;
 
     useEffect(() => {
-        socketRef.current = io.connect("");
+        socketRef.current = io.connect("https://1dfe-181-16-120-138.sa.ngrok.io");
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
@@ -75,6 +75,13 @@ const Room = (props) => {
             socketRef.current.on("receiving returned signal", payload => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
+            });
+
+            socketRef.current.on("peer-disconnected", payload => {
+                console.log("payload:", payload)
+                console.log("peersRef:", peersRef.current)
+                peersRef.current = peersRef.current.filter(peer => peer.peerID !== payload.socketId)
+                setPeers(peersRef.current)
             });
         })
     }, []);

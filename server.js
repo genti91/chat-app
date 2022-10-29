@@ -4,9 +4,9 @@ const http = require("http");
 const app = express();
 const socket = require("socket.io");
 
-app.use(express.static(__dirname + '/client/build'))
+app.use(express.static(__dirname + '/build'))
 app.get('/', (req, res, next) => {
-  res.sendFile(__dirname + '/client/build/index.html')
+  res.sendFile(__dirname + '/build/index.html')
 })
 
 const server = http.createServer(app);
@@ -42,12 +42,17 @@ io.on('connection', socket => {
         io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
+    const disconnectPeer = (socketId) => socket.broadcast.emit('peer-disconnected', {
+        socketId: socketId
+    })
+
     socket.on('disconnect', () => {
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;
+            disconnectPeer(socket.id)
         }
     });
 
