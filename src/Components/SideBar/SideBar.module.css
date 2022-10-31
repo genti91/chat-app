@@ -1,9 +1,15 @@
 .sideBar{
-    background-color: blue;
+    background-color: rgba(47,49,54,255);
     width: 180px;
     height: 100vh;
 }
 
 .button{
     width: 100%;
+    background-color: rgb(129, 129, 129);
+}
+
+.disMute{
+    display: flex;
+    bottom: 100;
 }

@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
 import SideBar from './Components/SideBar/SideBar';
-import Room from "./routes/Room";
+import Room from "./Components/Room";
 
 function App() {
   const [render, setRender] = useState({create: true})
   const [roomID, setRoomID] = useState(1111)
   return (
     // <BrowserRouter>
-    <div>
+    <div style={{backgroundColor: "rgba(54,57,63,255)"}}>
       {/* <Switch> */}
         {/* <Route path="/" exact component={CreateRoom} />
         <Route path="/room/:roomID" component={Room} /> */}
       {/* </Switch> */}
-      {render.create ? <SideBar setRender={setRender}/> :
-      <Room roomID={roomID}/>}
+      <div style={{display:"flex"}}>
+        <SideBar setRender={setRender}/>
+        {!render.create ? <Room roomID={roomID}/>:null}
+      </div>
     </div>
     // </BrowserRouter>
   );
