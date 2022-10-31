@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
-import CreateRoom from "./routes/CreateRoom";
+import SideBar from './Components/SideBar/SideBar';
 import Room from "./routes/Room";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         {/* <Route path="/" exact component={CreateRoom} />
         <Route path="/room/:roomID" component={Room} /> */}
       {/* </Switch> */}
-      {render.create ? <CreateRoom setRender={setRender}/> :
+      {render.create ? <SideBar setRender={setRender}/> :
       <Room roomID={roomID}/>}
     </div>
     // </BrowserRouter>
