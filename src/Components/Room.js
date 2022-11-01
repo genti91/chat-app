@@ -4,7 +4,8 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 
 const Container = styled.div`
-    padding: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
     display: flex;
     height: 100vh;
     width: 90%;
@@ -13,8 +14,9 @@ const Container = styled.div`
 `;
 
 const StyledVideo = styled.video`
-    height: 40%;
-    width: 50%;
+    max-height: 500px;
+    max-width: 800px;
+    border-radius: 15px;
 `;
 
 const Video = (props) => {
@@ -27,7 +29,9 @@ const Video = (props) => {
     }, []);
 
     return (
-        <StyledVideo playsInline autoPlay ref={ref} />
+        <div>
+            <StyledVideo playsInline autoPlay ref={ref} />
+        </div>
     );
 }
 
@@ -37,7 +41,7 @@ const videoConstraints = {
     width: window.innerWidth / 2
 };
 
-const Room = ({roomID}) => {
+const Room = ({roomID, setRender}) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
@@ -45,7 +49,7 @@ const Room = ({roomID}) => {
     // const roomID = props.match.params.roomID;
 
     useEffect(() => {
-        socketRef.current = io.connect(process.env.PUBLIC_URL);
+        socketRef.current = io.connect("https://b53e-181-16-121-114.sa.ngrok.io");
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
@@ -115,10 +119,17 @@ const Room = ({roomID}) => {
 
         return peer;
     }
+    function disconnect(){
+        setRender({create: true})
+        socketRef.current.emit("disconnect");
+    }
 
     return (
         <Container>
-            <StyledVideo muted ref={userVideo} autoPlay playsInline />
+            <button onClick={disconnect}>Disconnect</button>
+            <div style={{borderRadius:"20px", marginTop: "50px"}}>
+                <StyledVideo muted ref={userVideo} autoPlay playsInline />
+            </div>
             {peers.map((peer, index) => {
                 return (
                     <Video key={index} peer={peer} />
