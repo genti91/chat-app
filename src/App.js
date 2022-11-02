@@ -28,14 +28,15 @@ function App() {
   const [user] = useAuthState(auth);
   return (
     <div style={{backgroundColor: "rgba(54,57,63,255)"}}>
-      {user ? 
+      {/* {user ? 
       <div style={{display:"flex"}}>
         <SideBar setRender={setRender}/>
         {!render.create ? <Room roomID={roomID} setRender={setRender}/>:<ChatRoom/>}
       </div>
       : <SignIn/>
       }
-      <SignOut/>
+      <SignOut/> */}
+      <Room roomID={roomID} setRender={setRender}/>
     </div>
   );
 }

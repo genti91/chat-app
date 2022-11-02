@@ -52,7 +52,7 @@ const Room = ({roomID, setRender}) => {
     const userStream = useRef()
 
     useEffect(() => {
-        socketRef.current = io.connect("https://b53e-181-16-121-114.sa.ngrok.io");
+        socketRef.current = io.connect("https://eb8e-181-16-123-114.sa.ngrok.io");
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             userStream.current = stream
@@ -65,7 +65,10 @@ const Room = ({roomID, setRender}) => {
                         peerID: userID,
                         peer,
                     })
-                    peers.push(peer);
+                    peers.push({
+                        peerID: userID,
+                        peer,
+                    });
                 })
                 setPeers(peers);
             })
@@ -77,7 +80,12 @@ const Room = ({roomID, setRender}) => {
                     peer,
                 })
 
-                setPeers(users => [...users, peer]);
+                const peerObj = {
+                    peer,
+                    peerID: payload.callerID
+                }
+
+                setPeers(users => [...users, peerObj]);
             });
 
             socketRef.current.on("receiving returned signal", payload => {
@@ -86,8 +94,10 @@ const Room = ({roomID, setRender}) => {
             });
 
             socketRef.current.on("peer-disconnected", payload => {
-                console.log("payload:", payload)
-                console.log("peersRef:", peersRef.current)
+                const peerObj = peersRef.current.find(peer => peer.peerID === payload.socketId)
+                if(peerObj){
+                    peerObj.peer.destroy();
+                }
                 peersRef.current = peersRef.current.filter(peer => peer.peerID !== payload.socketId)
                 setPeers(peersRef.current)
             });
@@ -124,14 +134,14 @@ const Room = ({roomID, setRender}) => {
         return peer;
     }
     function disconnect(){
-        const videoTrack = userVideo.current.srcObject.getTracks().find(track => track.kind === 'video');
-        if (videoTrack.enabled) {
-            videoTrack.enabled = false;
-        }else{
-            videoTrack.enabled = true;
-        }
-        // setRender({create: true})
-        // socketRef.current.emit("disconnect");
+        // const videoTrack = userVideo.current.srcObject.getTracks().find(track => track.kind === 'video');
+        // if (videoTrack.enabled) {
+        //     videoTrack.enabled = false;
+        // }else{
+        //     videoTrack.enabled = true;
+        // }
+        setRender({create: true})
+        socketRef.current.emit("disconnect");
     }
 
     return (
@@ -140,9 +150,9 @@ const Room = ({roomID, setRender}) => {
             <div style={{borderRadius:"20px", marginTop: "50px"}}>
                 <StyledVideo muted ref={userVideo} autoPlay playsInline />
             </div>
-            {peers.map((peer, index) => {
+            {peers.map((peer) => {
                 return (
-                    <Video key={index} peer={peer} />
+                    <Video key={peer.peerID} peer={peer.peer} />
                 );
             })}
         </Container>
