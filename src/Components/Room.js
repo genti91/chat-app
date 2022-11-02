@@ -17,6 +17,7 @@ const StyledVideo = styled.video`
     max-height: 500px;
     max-width: 800px;
     border-radius: 15px;
+    background-color: rgba(32,34,37,255);
 `;
 
 const Video = (props) => {
@@ -46,12 +47,15 @@ const Room = ({roomID, setRender}) => {
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
+    const [video, setVideo] = useState(false);
     // const roomID = props.match.params.roomID;
+    const userStream = useRef()
 
     useEffect(() => {
         socketRef.current = io.connect("https://b53e-181-16-121-114.sa.ngrok.io");
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
+            userStream.current = stream
             socketRef.current.emit("join room", roomID);
             socketRef.current.on("all users", users => {
                 const peers = [];
@@ -120,8 +124,14 @@ const Room = ({roomID, setRender}) => {
         return peer;
     }
     function disconnect(){
-        setRender({create: true})
-        socketRef.current.emit("disconnect");
+        const videoTrack = userVideo.current.srcObject.getTracks().find(track => track.kind === 'video');
+        if (videoTrack.enabled) {
+            videoTrack.enabled = false;
+        }else{
+            videoTrack.enabled = true;
+        }
+        // setRender({create: true})
+        // socketRef.current.emit("disconnect");
     }
 
     return (

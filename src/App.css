@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  position: relative;
 }
 
 .App-logo {
@@ -39,4 +40,125 @@
 
 video {
   width: 500px;
+}
+
+form {
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 15px;
+  width: 100%;
+  display: flex;
+  font-size: 1.5rem;
+}
+
+form button {
+  width: 20%;
+  background-color: rgb(56, 56, 143);
+  border-top-right-radius: 60px;
+  border-bottom-right-radius: 60px;
+
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+
+input {
+  line-height: 1.5;
+  width: 100%;
+  font-size: 1.5rem;
+  background: rgba(64,68,75,255);
+  color: white;
+  outline: none;
+  border: none;
+  padding: 0 10px;
+  border-top-left-radius: 60px;
+  border-bottom-left-radius: 60px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+.sign-in {
+  color: #282c34;
+  background: white;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+
+
+
+ul, li {
+  text-align: left;
+  list-style: none;
+}
+
+p {
+  max-width: 500px;
+  margin-bottom: 12px;
+  line-height: 24px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  position: relative;
+  color: white;
+  text-align: center;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+}
+
+.messages{
+  width: 100%;
+  overflow-y: scroll;
+  max-height: 93vh;
+}
+.messages::-webkit-scrollbar {
+  display: none;
+}
+
+.chat{
+  position: relative;
+  margin-right: auto;
+  margin-left: auto;
+  width: 50%;
+  height: 100%;
+  align-items: center;
+  align-content: center;
+  
+}
+.chatContainer{
+  width: 100%;
+}
+
+.sent {
+  flex-direction: row-reverse;
+}
+
+.sent p {
+  color: white;
+  background: #0b93f6;
+  align-self: flex-end;
+}
+.received p {
+  background: #e5e5ea;
+  color: black;
+}
+
+img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 2px 5px;
 }

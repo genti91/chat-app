@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
 import SideBar from './Components/SideBar/SideBar';
 import Room from "./Components/Room";
@@ -8,6 +8,7 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import './App.css'
 
 firebase.initializeApp({
   apiKey: "AIzaSyCSCOjSSXznR800HAvxmsnk1U-6fh0-LCI",
@@ -30,7 +31,7 @@ function App() {
       {user ? 
       <div style={{display:"flex"}}>
         <SideBar setRender={setRender}/>
-        {!render.create ? <Room roomID={roomID} setRender={setRender}/>:null}
+        {!render.create ? <Room roomID={roomID} setRender={setRender}/>:<ChatRoom/>}
       </div>
       : <SignIn/>
       }
@@ -57,3 +58,60 @@ function SignOut() {
     <button onClick={() => auth.signOut()}>Sign Out</button>
   );
 }
+
+function ChatRoom() {
+  const messagesRef = firestore.collection('messages');
+  const query = messagesRef.orderBy('createdAt');
+  const [messages] = useCollectionData(query, {idField: 'id'});
+  const [formValue, setFormValue] = useState('');
+  const dummy = useRef();
+
+  useEffect(()=>{
+    dummy.current.scrollIntoView({behavior: 'smooth'})
+  },[])
+  
+  async function sendMessage(e){
+    e.preventDefault();
+    const {uid, photoURL} = auth.currentUser;
+    try{
+      await messagesRef.add({
+        text: formValue,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        uid,
+        photoURL
+      })
+    }catch(err){
+      console.log(err)
+    }
+    setFormValue('')
+    dummy.current.scrollIntoView({behavior: 'smooth'})
+  }
+
+  return(
+    <div className='chatContainer'>
+      <div className='chat'>
+        <div className='messages'>
+          {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
+          <div ref={dummy}></div>
+        </div>
+        <form onSubmit={sendMessage}>
+          <input value={formValue} onChange={(e) => setFormValue(e.target.value)} />
+          <button type='submit'>Send</button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function ChatMessage({message}){
+  const {text, uid, photoURL} = message;
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received'
+
+  return (
+    <div className={`message ${messageClass}`}>
+      <img src={photoURL}/>
+      <p>{text}</p>
+    </div>
+  )
+}
+
